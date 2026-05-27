@@ -35,9 +35,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // Ovi endpointi su javni - ne treba token
                         .requestMatchers("/auth/**").permitAll()
-                        // Ostalo zahteva autentifikaciju
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/event/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/artist/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/venue/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/genre/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess
