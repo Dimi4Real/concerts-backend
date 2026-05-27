@@ -3,7 +3,9 @@ package com.example.concerts.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -15,9 +17,14 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
-    private static final long EXPIRATION_TIME = 86400000; // 24 sata
-    private static final long REFRESH_EXPIRATION_TIME = 604800000; // 7 dana
+    @Value("${security.jwt.secret-key}")
+    private String secretKey;
+
+    @Value("${security.jwt.expiration-time}")
+    private long expirationTime;
+
+    @Value("${security.jwt.refresh-expiration-time}")
+    private long refreshExpirationTime;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -31,11 +38,11 @@ public class JwtService {
     public String generateToken(String username, String role) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", role);
-        return buildToken(extraClaims, username, EXPIRATION_TIME);
+        return buildToken(extraClaims, username, expirationTime);
     }
 
     public String generateRefreshToken(String username) {
-        return buildToken(new HashMap<>(), username, REFRESH_EXPIRATION_TIME);
+        return buildToken(new HashMap<>(), username, refreshExpirationTime);
     }
 
     private String buildToken(Map<String, Object> extraClaims, String subject, long expiration) {
@@ -70,17 +77,7 @@ public class JwtService {
     }
 
     private Key getSignInKey() {
-        byte[] keyBytes = hexStringToByteArray(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    private byte[] hexStringToByteArray(String hex) {
-        int len = hex.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-                    + Character.digit(hex.charAt(i + 1), 16));
-        }
-        return data;
     }
 }
