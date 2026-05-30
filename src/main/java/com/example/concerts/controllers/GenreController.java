@@ -35,7 +35,6 @@ public class GenreController {
                 HttpStatus.CREATED
         );
     }
-
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {

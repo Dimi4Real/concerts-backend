@@ -20,7 +20,7 @@ public class Artist {
     @Column(name = "bio")
     private String bio;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "artist_genres",
             joinColumns = @JoinColumn(name = "artist_id"),
